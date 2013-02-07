@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+
+<HTML>
+	<HEAD>
+		<!-- Set Head -->
+		<META http-equiv="Content-Type" content="text/html; charset=euc-kr">
+		<TITLE>KIM Q&A BOARD - WRITE</TITLE>
+		<LINK rel="stylesheet" type="text/css" href="style.css">
+		<SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT>
+		<script type="text/javascript">
+/*
+			function submitForm(){
+				// form
+ 				var form = document.createElement("form");     
+				form.setAttribute("method","post");                    
+				form.setAttribute("action","control.html");         
+				document.body.appendChild(form);                        
+				 
+				//input
+				var input_id = document.createElement("input");  
+				input_id.setAttribute("type", "hidden");                 
+				input_id.setAttribute("name", "test");                        
+				input_id.setAttribute("value", "dd");                          
+				form.appendChild(input_id);
+				 
+		    	form.submit();
+			}
+ */			
+ 			function submitWrite(){
+				var form = document.formWrite;
+				var writer = form.writer.value;
+ 				var passwd = form.passwd.value;
+				var category = form.category.value;
+				var phone = form.phone1.value + form.phone2.value + form.phone3.value;
+				var email = form.email.value;
+				var subject = form.subject.value;
+				var content = form.content.value;
+				insertData(writer, passwd, phone, email, category, subject, content);
+ 			}
+		</script>
+	</HEAD>	
+	
+	<BODY onLoad="JavaScript:loadDB();JavaScript:loadTable();">
+		<FORM name="formWrite">
+			<TABLE border="1" id="board">
+				<TR>
+					<TH>이름</TH>
+					<TD><INPUT type="text" name="writer" size="15" maxlength="15"></TD>
+				</TR>
+				<TR>
+					<TH>비밀번호</TH>
+					<TD><INPUT type="password" name="passwd" size="10" maxlength="10"></TD>
+				</TR>
+				<TR>
+					<TH>카테고리</TH>
+					<TD><SELECT name="category">
+    					<OPTION selected value="일반문의">일반문의</OPTION>
+    					<OPTION value="기술문의">기술문의</OPTION>
+    					<OPTION value="AS문의">AS문의</OPTION>
+    					<OPTION value="기타">기타</OPTION>
+					</SELECT></TD>
+				</TR>
+				<TR>
+					<TH>휴대폰</TH>
+					<TD><INPUT type="tel" name="phone1" size="3" maxlength="3">-<INPUT type="tel" name="phone2" size="4" maxlength="4">-<INPUT type="tel" name="phone3" size="4" maxlength="4"></TD>
+				</TR>
+				<TR>
+					<TH>E-Mail</TH>
+					<TD><INPUT type="email" name="email" size="30"></TD>
+				</TR>
+				<TR>
+					<TH>제목</TH>
+					<TD><INPUT type="text" name="subject" size="30"></TD>
+				</TR>
+				<TR>
+					<TH colspan="2">내용</TH>
+				</TR>
+				<TR>
+					<TD colspan="2"><TEXTAREA rows="10" cols="35" name="content"></TEXTAREA></TD>
+				</TR>
+				<TR>
+					<TD colspan="2"><INPUT type="button" value="작성완료" onClick="submitWrite();"">
+					<INPUT type="reset" value="다시작성">
+					<INPUT type="button" value="돌아가기" onClick="history.back();"></TD>
+			</TABLE>
+		</FORM>
+
+</HTML>

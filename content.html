@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+
+<HTML>
+	<HEAD>
+		<!-- Set Head -->
+		<TITLE>KIM Q&A BOARD - CONTENT</TITLE>
+		<LINK rel="stylesheet" type="text/css" href="style.css">
+		<SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT>
+		<SCRIPT type="text/javaScript">
+			var request = new Request();
+			var param = request.getParameter('count'); //일반적인 servlet/jsp에서의 파라미터 받는 메서드이름과 동일하다.
+			alert(param);
+			var dd = Array();
+		 	loadDB();
+			loadTable();
+			selectContent(param);
+			alert("AA");
+			alert("허 " + dd['CATEGORY']);
+			alert("BB");
+
+		</SCRIPT>
+	</HEAD>	
+	
+	<BODY>
+		<!-- Load DB -->
+		<P></P>
+	    <!-- Insert DB -->
+	    <P><BR><BR><INPUT type="button" value="새글쓰기" onClick="JavaScript:location.href='write.html'"><BR><BR>
+	    </P>
+        	<INPUT type="button" value="dddd" onClick="test();">
+ 		<TABLE border="1" id="board">
+			<TR>
+				<TH>번호</TH>
+				<TH>카테고리</TH>
+				<TH>제목</TH>
+				<TH>이름</TH>
+				<TH>답변개수</TH>
+				<TH>작성시간</TH>
+				<TH>조회수</TH>
+			</TR>
+			    
+			
+		
+		
+		</TABLE>
+	
+	</BODY>
+</HTML>

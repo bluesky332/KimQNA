@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+
+
+<HTML>
+	<HEAD>
+		<!-- Set Head -->
+		<TITLE>KIM Q&A BOARD - LIST</TITLE>
+		<LINK rel="stylesheet" type="text/css" href="style.css">
+		<SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT>
+	</HEAD>	
+	
+	<BODY onLoad="JavaScript:loadDB();JavaScript:loadTable();JavaScript:selectList();">
+		<!-- Load DB -->
+		<P></P>
+	    <!-- Insert DB -->
+	    <P><BR><BR><INPUT type="button" value="새글쓰기" onClick="JavaScript:location.href='write.html'"><BR><BR>
+	    </P>
+        
+		<TABLE border="1" id="board">
+			<TR>
+				<TH>번호</TH>
+				<TH>카테고리</TH>
+				<TH>제목</TH>
+				<TH>이름</TH>
+				<TH>답변개수</TH>
+				<TH>작성시간</TH>
+				<TH>조회수</TH>
+			</TR>
+		</TABLE>
+	
+	</BODY>
+</HTML>
