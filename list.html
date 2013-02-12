@@ -5,17 +5,104 @@
 	<HEAD>
 		<!-- Set Head -->
 		<TITLE>KIM Q&A BOARD - LIST</TITLE>
-		<LINK rel="stylesheet" type="text/css" href="style.css">
+ 		<LINK rel="stylesheet" type="text/css" href="style.css">
+		<SCRIPT type="text/javaScript" src="jquery-1.9.1.min.js"></SCRIPT>
 		<SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT>
+		<SCRIPT type="text/javaScript">
+		var test = "11";
+		
+		
+ 		function loadPage(){
+			loadDB();
+			loadTable();
+			selectList();
+			$("#con").hide();
+			//$("div").hide();
+		}
+ 		
+  		function queryDB(tx) {
+ 			var asd;
+ 		    tx.executeSql('SELECT * FROM QNA', [], querySuccess, errorCB);
+ 		}
+
+ 		function querySuccess(tx, results) {
+ 		    // this will be empty since no rows were inserted.
+ 		    //console.log("Insert ID = " + results.insertId);
+ 		    // this will be 0 since it is a select statement
+ 		    //console.log("Rows Affected = " + results.rowAffected);
+ 		    // the number of rows returned by the select statement
+ 		    var test22;
+ 		    console.log("Insert ID = " + results.rows.length);
+ 		   	var row =  new Array();
+			for(var i = 0; i < results.rows.length; i++){
+ 		    	console.log("test : " + results.rows.item(i));
+ 		    	var test = results.rows.item(i);
+ 		    	console.log("## : " + test['SUBJECT']);
+ 		    	row[i] = test['COUNT'];
+			}
+			listView(row);
+ 		}
+
+ 		function errorCB(err) {
+ 		    alert("Error processing SQL: "+err.code);
+ 		}
+
+ 		var db = window.openDatabase("myDB", "1.0", "testDB", 1024 * 1024);
+ 		db.transaction(queryDB, errorCB); 
+		
+ 		
+
+
+		
+		
+		
+ 		function listView(row){
+ 			alert("TEST");
+ 			$('#board tbody').each(function() {
+ 				alert($(this).find("tr").attr('id'));
+ 			});
+ 			/* 
+ 			console.log("dd : "+row[0]);
+ 			$("div").click(function () {
+ 				if($("#content1").is(":hidden")){
+ 					//testcode();
+ 				//$("#1").fadeIn();
+ 			  	//$("#1").fadeIn("slow");
+ 				//$("#1").fadeIn(1000);
+ 				$("#content1").slideDown();
+ 				//$("#con").fadeIn("slow");
+ 				}else{
+ 					//$("#1").fadeOut();
+ 				  	//$("#1").fadeOut("slow");
+ 					//$("#1").fadeOut(1000);
+ 					$("#content1").slideUp();
+ 					//$("#con").fadeOut("slow");
+ 				}
+ 			}); */
+ 		}
+ 		
+ 		
+ 		
+		</SCRIPT>
+
+<!-- 		<SCRIPT type="text/javaScript">
+			var index = 22;
+			console.log(index);
+		</SCRIPT> -->
+
+		
+		
 	</HEAD>	
 	
-	<BODY onLoad="JavaScript:loadDB();JavaScript:loadTable();JavaScript:selectList();">
+	<BODY onLoad='JavaScript:loadPage();'>
 		<!-- Load DB -->
 		<P></P>
 	    <!-- Insert DB -->
 	    <P><BR><BR><INPUT type="button" value="새글쓰기" onClick="JavaScript:location.href='write.html'"><BR><BR>
 	    </P>
-        
+	    <INPUT type="button" value="ㅇㅇㅇ" id="test">
+	    <!-- <div id="test">음...</div> -->
+	    <div>
 		<TABLE border="1" id="board">
 			<TR>
 				<TH>번호</TH>
@@ -27,6 +114,84 @@
 				<TH>조회수</TH>
 			</TR>
 		</TABLE>
-	
+		</div>
+	<table border="1"><tr><div id="dd">
+	<td colspan='7'>
+	안녕?
+	</td></div>
+	</tr>
+	</table>
 	</BODY>
+	
+	<SCRIPT>
+	$("#list1").click(function(e) {
+        e.preventDefault();
+        // my_value now is setted outside...
+                  $( this ).css( "backgroundColor", "yellow" );
+
+        my_value = $(this).parent().attr("id");
+        alert(my_value);
+    });
+	
+	
+	
+    $("#dd").click(function () {
+        //$( "#list" ).each(function (i) {
+          // domEle == this
+          $( this ).css( "backgroundColor", "yellow" );
+
+        //});
+      });
+	
+	
+/*     $("div").each(function (i) {
+
+		if($("#content1").is(":hidden")){
+					//testcode();
+				//$("#1").fadeIn();
+			  	//$("#1").fadeIn("slow");
+				//$("#1").fadeIn(1000);
+				$("#content1").slideDown();
+				//$("#con").fadeIn("slow");
+				}else{
+					//$("#1").fadeOut();
+				  	//$("#1").fadeOut("slow");
+					//$("#1").fadeOut(1000);
+					$("#content1").slideUp();
+					//$("#con").fadeOut("slow");
+				}
+			}); */
+
+	
+	
+    /* $(document.body).click(function () {
+       $("div").each(function (i) {
+			$("#list" + i).click(function () {
+ 				if($("#content" + i).is(":hidden")){
+/*   					$("div").each(function (j) {
+ 						$("#content" + j).slideDown();	
+ 					} */
+/*  					$("div").slideUp();
+	 				$("#content" + i).slideDown();
+ 				}else{
+ 					$("#content" + i).slideUp();
+ 				}
+ 			}); */
+    	  
+    	  
+    	/*   
+        if ( this.style.color != "blue" ) {
+          this.style.color = "blue";
+        } else {
+          this.style.color = "";
+        }
+         */
+        
+        
+        
+        /* 
+      });
+    });  */
+		
+	</SCRIPT>
 </HTML>

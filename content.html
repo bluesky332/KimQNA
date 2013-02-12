@@ -10,40 +10,27 @@
 		<SCRIPT type="text/javaScript">
 			var request = new Request();
 			var param = request.getParameter('count'); //일반적인 servlet/jsp에서의 파라미터 받는 메서드이름과 동일하다.
-			alert(param);
-			var dd = Array();
+			// Load DB
 		 	loadDB();
 			loadTable();
-			selectContent(param);
-			alert("AA");
-			alert("허 " + dd['CATEGORY']);
-			alert("BB");
-
+		    // Select DB
+		   	selectContent(param);
+		    function delData(){
+		    	deleteContent(param);
+		    }
+		    function goModify(){
+		    	location.href='modify.html?count=' + param;
+		    }
 		</SCRIPT>
 	</HEAD>	
 	
 	<BODY>
-		<!-- Load DB -->
-		<P></P>
-	    <!-- Insert DB -->
 	    <P><BR><BR><INPUT type="button" value="새글쓰기" onClick="JavaScript:location.href='write.html'"><BR><BR>
 	    </P>
-        	<INPUT type="button" value="dddd" onClick="test();">
+        	<INPUT type="button" value="수정하기" onClick="goModify();">
+        	<INPUT type="button" value="삭제하기" onClick="delData();">
  		<TABLE border="1" id="board">
-			<TR>
-				<TH>번호</TH>
-				<TH>카테고리</TH>
-				<TH>제목</TH>
-				<TH>이름</TH>
-				<TH>답변개수</TH>
-				<TH>작성시간</TH>
-				<TH>조회수</TH>
-			</TR>
-			    
-			
-		
-		
+		<!-- selectContent()의 결과가 여기에 들어감 -->
 		</TABLE>
-	
 	</BODY>
 </HTML>
