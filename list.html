@@ -7,191 +7,94 @@
 		<TITLE>KIM Q&A BOARD - LIST</TITLE>
  		<LINK rel="stylesheet" type="text/css" href="style.css">
 		<SCRIPT type="text/javaScript" src="jquery-1.9.1.min.js"></SCRIPT>
-		<SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT>
-		<SCRIPT type="text/javaScript">
-		var test = "11";
-		
-		
- 		function loadPage(){
-			loadDB();
-			loadTable();
-			selectList();
-			$("#con").hide();
-			//$("div").hide();
-		}
- 		
-  		function queryDB(tx) {
- 			var asd;
- 		    tx.executeSql('SELECT * FROM QNA', [], querySuccess, errorCB);
- 		}
-
- 		function querySuccess(tx, results) {
- 		    // this will be empty since no rows were inserted.
- 		    //console.log("Insert ID = " + results.insertId);
- 		    // this will be 0 since it is a select statement
- 		    //console.log("Rows Affected = " + results.rowAffected);
- 		    // the number of rows returned by the select statement
- 		    var test22;
- 		    console.log("Insert ID = " + results.rows.length);
- 		   	var row =  new Array();
-			for(var i = 0; i < results.rows.length; i++){
- 		    	console.log("test : " + results.rows.item(i));
- 		    	var test = results.rows.item(i);
- 		    	console.log("## : " + test['SUBJECT']);
- 		    	row[i] = test['COUNT'];
-			}
-			listView(row);
- 		}
-
- 		function errorCB(err) {
- 		    alert("Error processing SQL: "+err.code);
- 		}
-
- 		var db = window.openDatabase("myDB", "1.0", "testDB", 1024 * 1024);
- 		db.transaction(queryDB, errorCB); 
-		
- 		
-
-
-		
-		
-		
- 		function listView(row){
- 			alert("TEST");
- 			$('#board tbody').each(function() {
- 				alert($(this).find("tr").attr('id'));
- 			});
- 			/* 
- 			console.log("dd : "+row[0]);
- 			$("div").click(function () {
- 				if($("#content1").is(":hidden")){
- 					//testcode();
- 				//$("#1").fadeIn();
- 			  	//$("#1").fadeIn("slow");
- 				//$("#1").fadeIn(1000);
- 				$("#content1").slideDown();
- 				//$("#con").fadeIn("slow");
- 				}else{
- 					//$("#1").fadeOut();
- 				  	//$("#1").fadeOut("slow");
- 					//$("#1").fadeOut(1000);
- 					$("#content1").slideUp();
- 					//$("#con").fadeOut("slow");
- 				}
- 			}); */
- 		}
- 		
- 		
- 		
-		</SCRIPT>
-
-<!-- 		<SCRIPT type="text/javaScript">
-			var index = 22;
-			console.log(index);
-		</SCRIPT> -->
-
-		
-		
+		<!-- <SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT> -->
 	</HEAD>	
 	
-	<BODY onLoad='JavaScript:loadPage();'>
+	<BODY>
 		<!-- Load DB -->
 		<P></P>
 	    <!-- Insert DB -->
 	    <P><BR><BR><INPUT type="button" value="새글쓰기" onClick="JavaScript:location.href='write.html'"><BR><BR>
 	    </P>
-	    <INPUT type="button" value="ㅇㅇㅇ" id="test">
 	    <!-- <div id="test">음...</div> -->
 	    <div>
-		<TABLE border="1" id="board">
-			<TR>
-				<TH>번호</TH>
-				<TH>카테고리</TH>
-				<TH>제목</TH>
-				<TH>이름</TH>
-				<TH>답변개수</TH>
-				<TH>작성시간</TH>
-				<TH>조회수</TH>
-			</TR>
-		</TABLE>
+			<TABLE border="1" id="board">
+				<TR align='center'>
+					<TH>번호</TH>
+					<TH>카테고리</TH>
+					<TH>제목</TH>
+					<TH>이름</TH>
+					<TH>답변개수</TH>
+					<TH>작성시간</TH>
+					<TH>조회수</TH>
+				</TR>
+				<!-- 테스트용 하드 코딩 -->
+<!--  				<TR id="list1"><TD>번호1</TD><TD>카테고리1</TD><TD>제목1</TD><TD>이름1</TD><TD>답변개수1</TD><TD>작성시간1</TD><TD>조회수1</TD></TR>
+				<TR><TD colspan="7">
+				<DIV id="content1"><TABLE>
+				<TR><TD>여기가 바로 본문내용1</TD></TR>
+				</TABLE></DIV>
+				<TR class='list2'><TD>번호2</TD><TD>카테고리2</TD><TD>제목2</TD><TD>이름2</TD><TD>답변개수2</TD><TD>작성시간2</TD><TD>조회수2</TD></TR>
+				<TR><TD colspan='7'>
+				<DIV id='content2'><TABLE>
+				<TR><TD>여기가 바로 본문내용2</TD></TR>
+				</TABLE></DIV> -->			
+			</TABLE>
 		</div>
-	<table border="1"><tr><div id="dd">
-	<td colspan='7'>
-	안녕?
-	</td></div>
-	</tr>
-	</table>
+		
+		<SCRIPT type="text/javaScript">
+			var db = window.openDatabase("myDB", "1.0", "testDB", 1024 * 1024); // 1MB
+			db.transaction(function(tx){
+				tx.executeSql("CREATE TABLE IF NOT EXISTS QNA(COUNT INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, WRITER TEXT NOT NULL, PASSWD TEXT NOT NULL, " +
+					"PHONE TEXT NOT NULL, EMAIL TEXT NOT NULL, CATEGORY TEXT NOT NULL, SUBJECT TEXT NOT NULL, CONTENT NOT NULL, " +
+					"WDATE TEXT DEFAULT current_timestamp NOT NULL, ANSWER INTEGER DEFAULT 0 NOT NULL, HIT INTEGER DEFAULT 0 NOT NULL)");
+			});
+			db.transaction(function(tx){
+				tx.executeSql("SELECT * FROM QNA",[],
+					function(tx,result){            
+						for(var i = 0; i < result.rows.length; i++){
+							var row = result.rows.item(i);
+							document.getElementById('board').innerHTML +=  
+								"<TR align='center' id='list" + row['COUNT'] + "'>" +
+								"<TD>" + row['COUNT'] + "</TD>" +
+								"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
+								"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>" +
+								// 본문 세팅
+								"<TR align='center' id=content"+row['COUNT']+"><TD colspan='7'><DIV>"+
+								"<TABLE border='1'>" +
+								"<TR align='center'><TD>핸드폰</TD><TD>" + row['PHONE'] + "</TD><TD>이메일</TD><TD>" + row['EMAIL'] + "</TD></TR>" +
+								"<TR align='center'><TD colspan='4'>제 목</TD></TR>" +
+								"<TR align='center'><TD colspan='4'>" + row['SUBJECT'] + "</TD></TR>" +
+								"<TR align='center'><TD colspan='4'>내 용</TD></TR>" +
+								"<TR align='center'><TD colspan='4'>" + row['CONTENT'] + "</TD></TR>" +
+								// 리플 양식 세팅
+								"<TR align='center'><TD>이름<BR><INPUT type='text' size='15' maxlength='15'><BR>비밀번호<BR><INPUT type='password' size='10' maxlength='10'></TD><TD colspan='2'><TEXTAREA rows='5' cols='40' name='reply' value='리플을 작성하세요.'></TEXTAREA></TD><TD><INPUT type='button' value='작성'></TD></TR>" +
+								"</TABLE></DIV></TD></TR>";
+								$("#content" + row['COUNT']).hide();
+						}
+						listView(result.rows.length);
+				});
+			});
+							
+			function listView(count){
+				// 클릭시 본문을 보여준다.
+	 	 		$("#board>tbody>tr").click(function(e) {
+	 				// 선택한 인덱스를 가져오는 방법
+		 			//alert(parseInt($(this).text()));
+				 	 			
+					if($(this).next().is(":hidden")){ // 게시글 열기
+						for(var i=0;i<count;i++){
+							$("#content" + (i+1)).fadeOut();
+						}
+						$(this).next().fadeIn();
+  					}else if($(this).next().is(":visible")){ // 게시글 닫기
+  						$(this).next().fadeOut();
+  					}
+				});
+			} // END
+
+	</SCRIPT>
 	</BODY>
 	
-	<SCRIPT>
-	$("#list1").click(function(e) {
-        e.preventDefault();
-        // my_value now is setted outside...
-                  $( this ).css( "backgroundColor", "yellow" );
 
-        my_value = $(this).parent().attr("id");
-        alert(my_value);
-    });
-	
-	
-	
-    $("#dd").click(function () {
-        //$( "#list" ).each(function (i) {
-          // domEle == this
-          $( this ).css( "backgroundColor", "yellow" );
-
-        //});
-      });
-	
-	
-/*     $("div").each(function (i) {
-
-		if($("#content1").is(":hidden")){
-					//testcode();
-				//$("#1").fadeIn();
-			  	//$("#1").fadeIn("slow");
-				//$("#1").fadeIn(1000);
-				$("#content1").slideDown();
-				//$("#con").fadeIn("slow");
-				}else{
-					//$("#1").fadeOut();
-				  	//$("#1").fadeOut("slow");
-					//$("#1").fadeOut(1000);
-					$("#content1").slideUp();
-					//$("#con").fadeOut("slow");
-				}
-			}); */
-
-	
-	
-    /* $(document.body).click(function () {
-       $("div").each(function (i) {
-			$("#list" + i).click(function () {
- 				if($("#content" + i).is(":hidden")){
-/*   					$("div").each(function (j) {
- 						$("#content" + j).slideDown();	
- 					} */
-/*  					$("div").slideUp();
-	 				$("#content" + i).slideDown();
- 				}else{
- 					$("#content" + i).slideUp();
- 				}
- 			}); */
-    	  
-    	  
-    	/*   
-        if ( this.style.color != "blue" ) {
-          this.style.color = "blue";
-        } else {
-          this.style.color = "";
-        }
-         */
-        
-        
-        
-        /* 
-      });
-    });  */
-		
-	</SCRIPT>
 </HTML>

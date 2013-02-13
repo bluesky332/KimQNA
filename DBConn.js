@@ -23,7 +23,7 @@ function selectList(){
 			function(tx,result){            
 				for(var i = 0; i < result.rows.length; i++){
 					var row = result.rows.item(i);
-					document.getElementById('board').innerHTML +=  "<TR id='list1'>" +
+					document.getElementById('board').innerHTML +=  "<TR id='list" + row['COUNT'] + "'>" +
 						"<TD><A HREF=content.html?count=" + row['COUNT'] + ">" + row['COUNT'] + "</A></TD>" +
 						"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
 						"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>" +
@@ -37,7 +37,7 @@ function selectList(){
 						"<TR><TD colspan='4'>³» ¿ë</TD></TR>" +
 						"<TR><TD colspan='4'>" + row['CONTENT'] + "</TD></TR></TABLE></DIV></TD></TR>";
 					$("#content" + row['COUNT']).hide();
-					
+					document.getElementById('aa').value++;
 				}
 			}
 		);
