@@ -4,19 +4,30 @@
 <HTML>
 	<HEAD>
 		<!-- Set Head -->
+		<style type="text/css">
+/* #divLangSelect {
+ position:absolute;
+ display:none;
+ background-color:#FFCC00;
+ border:solid 2px #d0d0d0;
+ width:500px;
+ height:500px;
+ padding:10px;
+} */
+#divLangSelect {
+display:none;
+}
+</style>
 		<TITLE>KIM Q&A BOARD - LIST</TITLE>
  		<LINK rel="stylesheet" type="text/css" href="style.css">
+ 		
 		<SCRIPT type="text/javaScript" src="jquery-1.9.1.min.js"></SCRIPT>
 		<!-- <SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT> -->
 	</HEAD>	
 	
 	<BODY>
-		<!-- Load DB -->
-		<P></P>
-	    <!-- Insert DB -->
 	    <P><BR><BR><INPUT type="button" value="새글쓰기" onClick="JavaScript:location.href='write.html'"><BR><BR>
 	    </P>
-	    <!-- <div id="test">음...</div> -->
 	    <div>
 			<TABLE border="1" id="board">
 				<TR align='center'>
@@ -28,6 +39,10 @@
 					<TH>작성시간</TH>
 					<TH>조회수</TH>
 				</TR>
+				<TR id='td1'></TR>
+				<TR id='td2'></TR>
+				<TR id='td3'></TR>
+				<TR id='td4'></TR>
 				<!-- 테스트용 하드 코딩 -->
 <!--  				<TR id="list1"><TD>번호1</TD><TD>카테고리1</TD><TD>제목1</TD><TD>이름1</TD><TD>답변개수1</TD><TD>작성시간1</TD><TD>조회수1</TD></TR>
 				<TR><TD colspan="7">
@@ -38,63 +53,239 @@
 				<TR><TD colspan='7'>
 				<DIV id='content2'><TABLE>
 				<TR><TD>여기가 바로 본문내용2</TD></TR>
-				</TABLE></DIV> -->			
+				</TABLE></DIV> -->
+							
 			</TABLE>
 		</div>
-		
+<!-- 폼 레이어  -->
+<div id="divLangSelect" style="position:absolute;top:100px;right:100px">
+        <span onClick="javascript:document.getElementById('divLangSelect').style.display='none'" style="text-align:center;cursor:pointer;font-size:1.5em" title="닫기">X</span>
+        <div id='test8'>
+
+				</div>
+</div>
+<!-- //폼 레이어  -->
 		<SCRIPT type="text/javaScript">
+		
 			var db = window.openDatabase("myDB", "1.0", "testDB", 1024 * 1024); // 1MB
-			db.transaction(function(tx){
-				tx.executeSql("CREATE TABLE IF NOT EXISTS QNA(COUNT INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, WRITER TEXT NOT NULL, PASSWD TEXT NOT NULL, " +
+			var count;
+			db.transaction(qnaSelectListDB, errorDB);
+			
+			function errorDB(err) {
+	        	console.log("Error processing SQL: "+err.code);
+	    	}
+			
+			function qnaSelectListDB(tx) {
+				// QNA 테이블생성
+	        	tx.executeSql("CREATE TABLE IF NOT EXISTS QNA(COUNT INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, WRITER TEXT NOT NULL, PASSWD TEXT NOT NULL, " +
 					"PHONE TEXT NOT NULL, EMAIL TEXT NOT NULL, CATEGORY TEXT NOT NULL, SUBJECT TEXT NOT NULL, CONTENT NOT NULL, " +
 					"WDATE TEXT DEFAULT current_timestamp NOT NULL, ANSWER INTEGER DEFAULT 0 NOT NULL, HIT INTEGER DEFAULT 0 NOT NULL)");
-			});
-			db.transaction(function(tx){
-				tx.executeSql("SELECT * FROM QNA",[],
-					function(tx,result){            
-						for(var i = 0; i < result.rows.length; i++){
-							var row = result.rows.item(i);
-							document.getElementById('board').innerHTML +=  
-								"<TR align='center' id='list" + row['COUNT'] + "'>" +
-								"<TD>" + row['COUNT'] + "</TD>" +
-								"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
-								"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>" +
-								// 본문 세팅
-								"<TR align='center' id=content"+row['COUNT']+"><TD colspan='7'><DIV>"+
-								"<TABLE border='1'>" +
-								"<TR align='center'><TD>핸드폰</TD><TD>" + row['PHONE'] + "</TD><TD>이메일</TD><TD>" + row['EMAIL'] + "</TD></TR>" +
-								"<TR align='center'><TD colspan='4'>제 목</TD></TR>" +
-								"<TR align='center'><TD colspan='4'>" + row['SUBJECT'] + "</TD></TR>" +
-								"<TR align='center'><TD colspan='4'>내 용</TD></TR>" +
-								"<TR align='center'><TD colspan='4'>" + row['CONTENT'] + "</TD></TR>" +
-								// 리플 양식 세팅
-								"<TR align='center'><TD>이름<BR><INPUT type='text' size='15' maxlength='15'><BR>비밀번호<BR><INPUT type='password' size='10' maxlength='10'></TD><TD colspan='2'><TEXTAREA rows='5' cols='40' name='reply' value='리플을 작성하세요.'></TEXTAREA></TD><TD><INPUT type='button' value='작성'></TD></TR>" +
-								"</TABLE></DIV></TD></TR>";
-								$("#content" + row['COUNT']).hide();
-						}
-						listView(result.rows.length);
-				});
-			});
+				// COMMENT 테이블생성
+	        	tx.executeSql("CREATE TABLE IF NOT EXISTS COMMENT(COUNT INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, QNACNT INTEGER NOT NULL," +
+	        			"WRITER TEXT NOT NULL, PASSWD TEXT NOT NULL, CONTENT NOT NULL, WDATE TEXT DEFAULT current_timestamp NOT NULL)");
+				// QNA 셀렉 쿼리
+	        	tx.executeSql('SELECT COUNT, CATEGORY, SUBJECT, WRITER, ANSWER, WDATE, HIT FROM QNA', [], qnaSelectListOK, errorDB);
+				
+	    	}
+			function commentInsertDB(count, writer, passwd, content){
+				db.transaction(function(tx){
+					tx.executeSql("INSERT INTO COMMENT(QNACNT, WRITER, PASSWD, CONTENT) VALUES(?, ?, ?, ?)", [count, writer, passwd, content]);
+				}, errorDB);
+			}
+						
+			function commentSelectDB(tx) {
+				// COMMENT 셀렉 쿼리
+				//alert(count);
+	        	tx.executeSql('SELECT * FROM COMMENT WHERE QNACNT = ?', [count], commentSelectSuccess, errorDB);
+				
+	    	}
+			
+ 			function qnaSelectListOK(tx, results) {
+				var length = results.rows.length;
+					for(var i = 0; i < length ; i++){
+						var row = results.rows.item(i);
+						var count = row['COUNT'];
+						document.getElementById("td"+count).innerHTML +=
+							"<TR align='center'>" +
+							"<TD>" + row['COUNT'] + "</TD>" +
+							"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
+							"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>";
 							
-			function listView(count){
-				// 클릭시 본문을 보여준다.
-	 	 		$("#board>tbody>tr").click(function(e) {
-	 				// 선택한 인덱스를 가져오는 방법
-		 			//alert(parseInt($(this).text()));
-				 	 			
-					if($(this).next().is(":hidden")){ // 게시글 열기
-						for(var i=0;i<count;i++){
-							$("#content" + (i+1)).fadeOut();
-						}
-						$(this).next().fadeIn();
-  					}else if($(this).next().is(":visible")){ // 게시글 닫기
-  						$(this).next().fadeOut();
-  					}
-				});
-			} // END
+							// 본문 세팅
+							//"<TR align='center' id=content"+row['COUNT']+"><TD colspan='7'><DIV>"+
+							//"<TABLE border='1' id='contentTable"+row['COUNT']+"'>" +
+							//"<TR align='center'><TD>핸드폰</TD><TD>" + row['PHONE'] + "</TD><TD>이메일</TD><TD>" + row['EMAIL'] + "</TD></TR>" +
+							//"<TR align='center'><TD colspan='4'>제 목</TD></TR>" +
+							//"<TR align='center'><TD colspan='4'>" + row['SUBJECT'] + "</TD></TR>" +
+							//"<TR align='center'><TD colspan='4'>내 용</TD></TR>" +
+							//"<TR align='center'><TD colspan='4'>" + row['CONTENT'] + "</TD></TR>" +
+							// 리플 양식 세팅
+							//"<TR align='center'><TD>이름<BR><INPUT type='text' id='commentWriter" + row['COUNT'] + "' size='15' maxlength='15'>" +
+							//"<BR>비밀번호<BR><INPUT type='password' id='commentPasswd" + row['COUNT'] + "' size='10' maxlength='10'></TD>" +
+							//"<TD colspan='2'><TEXTAREA rows='5' cols='40' id='commentContent" + row['COUNT'] + "' value='리플을 작성하세요.'></TEXTAREA></TD>" +
+							//"<TD><INPUT type='button' value='작성' onClick='JavaScript:writeComment("+row['COUNT']+");'></TD></TR>" +
+							//"</DIV></TD></TR>";
+						// 본문 내용을 숨김
+						//$("#content" + row['COUNT']).hide();
+					}
+				// 클릭시 본문 펼침
+				listView(length);
+		    } 
+			
+			function qnaSelectContentDB(count){
+				db.transaction(function(tx){
+					tx.executeSql("SELECT * FROM QNA WHERE COUNT = ?", [count], qnaSelectContentOK, errorDB);
+				}, errorDB);
+			}
+			function commentSelectDB(count){
+				db.transaction(function(tx){
+					tx.executeSql("SELECT * FROM COMMENT WHERE QNACNT = ?", [count], commentSelectOK, errorDB);
+				}, errorDB);
+			}		
+			function qnaSelectContentOK(tx, results) {
+				var length = results.rows.length;
+						var row = results.rows.item(0);
+						var count = row['COUNT'];
+						var fullTag = 
+							"<TABLE border='1' id='test9'>" +
+							"<TR align='center'>" +
+							"<TH>번호</TH>" +
+							"<TH>카테고리</TH>" +
+							"<TH>제목</TH>" +
+							"<TH>이름</TH>" +
+							"<TH>답변개수</TH>" +
+							"<TH>작성시간</TH>" +
+							"<TH>조회수</TH>" +
+							"</TR>" +
+							"<TR align='center'>" +
+							"<TD>" + row['COUNT'] + "</TD>" +
+							"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
+							"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>" +
+							"<TR align='center'><TD colspan='7'><TABLE border='1' id='test7'>" +
+							"<TR align='center'><TD>핸드폰</TD><TD>" + row['PHONE'] + "</TD><TD>이메일</TD><TD>" + row['EMAIL'] + "</TD></TR>" +
+							"<TR align='center'><TD colspan='4'>제 목</TD></TR>" +
+							"<TR align='center'><TD colspan='4'>" + row['SUBJECT'] + "</TD></TR>" +
+							"<TR align='center'><TD colspan='4'>내 용</TD></TR>" +
+							"<TR align='center'><TD colspan='4'>" + row['CONTENT'] + "</TD></TR>" +
+							"<TR align='center'><TD>이름<BR><INPUT type='text' class='commentWriter' size='15' maxlength='15'>" +
+							"<BR>비밀번호<BR><INPUT type='password' class='commentPasswd' size='10' maxlength='10'></TD>" +
+							"<TD colspan='2'><TEXTAREA rows='5' cols='40' class='commentContent'>리플을 작성하세요.</TEXTAREA></TD>" +
+							"<TD><INPUT type='button' value='작성' onClick='JavaScript:writeComment("+row['COUNT']+");'></TD></TR>"+
+							"</TABLE></TD></TR></TABLE>";
+						$("#test8").append(fullTag);
+						 
 
-	</SCRIPT>
+						// 리플 양식 세팅
+/* 							 +
+							 +
+							
+							
+							"</DIV></TD></TR>"; */
+						// 본문 내용을 숨김
+						//$("#list" + row['COUNT']).hide();
+						//$("#content" + row['COUNT']).hide();
+	 	 				//$("#list"+count).fadeIn();
+	 	 				//$("#content"+count).fadeIn();
+
+				// 클릭시 본문 펼침
+				//listView(length);
+		    }
+			
+			
+ 			function commentSelectOK(tx, results) {
+				var length = results.rows.length;
+/* 				var test = results.rows.item(0);
+				var content = "contentTable"+test['QNACNT']; */				
+ 				var test = "";//"<TABLE border='1'>";
+					for(var i = 0; i < length ; i++){
+						var row = results.rows.item(i);
+						 test += //"<TR><TD colspan='4'>" +
+			 				"<TR align='center'><TD>작성자</TD><TD>" + row['WRITER'] + "</TD><TD>작성시간</TD><TD>" + row['WDATE'] + "</TD></TR>" +
+			 				"<TR align='center'><TD>내 용</TD><TD colspan='2'>" + row['CONTENT'] + "</TD>" +
+							"<TD><INPUT type='button' value='수정'><BR><INPUT type='button' value='삭제'></TD></TR>";
+							
+							
+					}
+					$("#test7").append(test);
+					$("#test7").append("</TABLE></TD></TR></TABLE>");
+					
+ 
+				// 클릭시 본문 펼침
+//				listView(length);
+		    } 
+ 			
+ 			
+		
+			function listView(length){
+			// 클릭시 본문 펼침
+ 	 			$("#board>tbody>tr").click(function(e) {
+ 	 				count = parseInt($(this).text());
+ 	 				$("#test9").remove();
+ 	 				qnaSelectContentDB(count);
+ 	 				commentSelectDB(count);
+ 	 				//db.transaction(commentSelectDB, errorDB);	
+ 	 				 var divTop = e.clientY + 10; //상단 좌표
+ 	 				 var divLeft = e.clientX + 10; //좌측 좌표
+ 	 				 
+ 	 				 
+ 	 				 
+ 	 				//var $layerPopupObj = $('#popup');
+ 	 				//var left = ( $(window).scrollLeft() + ($(window).width() - $("divLangSelect").width()) / 2 );
+ 	 				//var top = ( $(window).scrollTop() + ($(window).height() - $("divLangSelect").height()) / 2 );
+ 	 				//$layerPopupObj.css({'left':left,'top':top, 'position':'absolute'});
+ 	 				var left = 650;
+ 	 				var top = 100;
+ 	 				 
+ 	 				 
+ 	 				 
+ 	 				 
+ 	 				 $('#divLangSelect').css({
+ 	 				     "top": top
+ 	 				     ,"left": left
+ 	 				     ,"right":650
+ 	 				     , "position": "absolute"
+ 	 				     , "background-color":"#f0f8ff"
+ 	 				 }).show();
+ 	 				
+ 	 				//$("#ddd1").empty();
+ 	 				/* count = parseInt($(this).text());
+ 	 				if(count !== "NaN"){
+ 	 				$("#td" + count).empty();
+ 	 				$("#td" + count).empty();
+ 	 				qnaSelectContentDB(count);
+
+ 	 				}
+ */
+ 	 				
+ 	 				// 선택한 인덱스를 가져오는 방법
+ 	 				//alert(parseInt($(this).text()));
+ 	 				
+ 					//if($(this).next().is(":hidden")){ // 게시글 열기
+	 				//	for(var i=0;i<length;i++){
+  					//		$("#content" + (i+1)).fadeOut();
+  					//	}
+
+ 					
+ 					
+  					//	$(this).next().fadeIn();
+						//document.getElementById('content1').innerHTML += "여긴어디";  
+
+  					//	db.transaction(commentSelectDB, errorDB);	
+		  			//}else if($(this).next().is(":visible")){ // 게시글 닫기
+  					//	$(this).next().fadeOut();
+  					//}
+	 			}); // END			
+			}
+
+	 		function writeComment(count){
+	 			var writer = $(".commentWriter").val();
+		    	var passwd = $(".commentPasswd").val();
+		    	var content = $(".commentContent").val();
+	 			commentInsertDB(count, writer, passwd, content);
+	 			$("#test9").remove();
+	 				qnaSelectContentDB(count);
+ 	 				commentSelectDB(count);
+	 		}
+		</SCRIPT>
 	</BODY>
-	
-
 </HTML>
