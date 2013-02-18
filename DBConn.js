@@ -7,13 +7,13 @@ function loadTable(){
 	db.transaction(function(tx){
 		tx.executeSql("CREATE TABLE IF NOT EXISTS QNA(COUNT INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, WRITER TEXT NOT NULL, PASSWD TEXT NOT NULL, " +
 				"PHONE TEXT NOT NULL, EMAIL TEXT NOT NULL, CATEGORY TEXT NOT NULL, SUBJECT TEXT NOT NULL, CONTENT NOT NULL, " +
-				"WDATE TEXT DEFAULT current_timestamp NOT NULL, ANSWER INTEGER DEFAULT 0 NOT NULL, HIT INTEGER DEFAULT 0 NOT NULL)");
+				"WDATE TEXT NOT NULL, ANSWER INTEGER DEFAULT 0 NOT NULL, HIT INTEGER DEFAULT 0 NOT NULL)");
 	});
 }
 
 function insertData(writer, passwd, phone, email, category, subject, content){
 	db.transaction(function(tx){
-		tx.executeSql("INSERT INTO QNA(COUNT, WRITER, PASSWD, PHONE, EMAIL, CATEGORY, SUBJECT, CONTENT) VALUES(NULL, ?, ?, ?, ?, ?, ?, ?)", [writer, passwd, phone, email, category, subject, content]);
+		tx.executeSql("INSERT INTO QNA(COUNT, WRITER, PASSWD, PHONE, EMAIL, CATEGORY, SUBJECT, CONTENT, WDATE) VALUES(NULL, ?, ?, ?, ?, ?, ?, ?, datetime('now', 'localtime'))", [writer, passwd, phone, email, category, subject, content]);
 	});
 }
       

@@ -5,6 +5,15 @@ table {
 table td,table th {
 	padding: 5px;
 }
+ #divLangSelect {
+ position:absolute;
+ display:none;
+ background-color:#FFCC00;
+ border:solid 2px #d0d0d0;
+ width:500px;
+ height:500px;
+ padding:10px;
+}
 /* #divLangSelect {
  position:absolute;
  display:none;
@@ -14,3 +23,8 @@ table td,table th {
  height:600px;
  padding:10px;
 } */
+
+td.hover, #board tbody tr:hover
+{
+	background-color: LemonChiffon;
+}
