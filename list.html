@@ -4,51 +4,175 @@
 <HTML>
 	<HEAD>
 		<!-- Set Head -->
-		<style type="text/css">
- 
-
-</style>
 		<TITLE>KIM Q&A BOARD - LIST</TITLE>
- 		<LINK rel="stylesheet" type="text/css" href="style.css">
-		<SCRIPT type="text/javaScript" src="jquery-1.9.1.min.js"></SCRIPT>
-		<SCRIPT type="text/javaScript" src="ui/jquery.ui.button.js"></SCRIPT>
+ 		<LINK rel="stylesheet" type="text/css" href="table.css">
+ 		<link type="text/css" rel="stylesheet" href="ui/layout-default-latest.css" />
+		<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="ui/jquery-ui-1.10.1.custom.js"></script>
+		<script type="text/javascript" src="ui/jquery.layout-latest.js"></script>
+		<script type="text/javascript" src="js/qnaDB.js"></script>
+		<script type="text/javascript" src="js/commentDB.js"></script>
+		<style type="text/css">
+			html, body {
+				background:	#666;
+				width:		100%;
+				height:		100%;					
+				padding:	0;
+				margin:		0;
+				overflow:	auto; /* when page gets too small */
+			}
+			#container {
+				background:	777;
+				padding: 3%;
+				/* HEIGHT */
+				
+				height:		85%;					
+				min-height:	300px;
+				_height:	300px; /* min-height for IE6 */
+				/* WIDTH */
+				width:		70%;
+				
+
+				_width:		700px; /* min-width for IE6 */
+				/* HORIZONTAL CENTERING */
+				margin:		0 auto;
+			}
+	/*
+	 *	Container sizing
+	 *
+	 *	Borders and padding are normally *added* to the width/height of the DIV
+	 *	However you can get height:100% AND padding/borders by using a nested layout. 
+	 *	The outer-layout is just a single pane: center, which is where you add your vertical padding.
+	 *	Inside this is your *real layout*. 
+	 */
+			#paddingWrapper {
+				background:	#999;
+				padding:	20px 10px;
+				border:		4px solid #BBB;
+			}
+			.pane {
+				display:	none; /* will appear when layout inits */
+			}
+		</style>
 		<!-- <SCRIPT type="text/javaScript" src="DBConn.js"></SCRIPT> -->
 	</HEAD>	
 	
+	<!-- HTML 태그 바디 시작 -->
 	<BODY>
-	    <P><BR><BR><INPUT type="button" value="새글쓰기" onClick="JavaScript:location.href='write.html'"><BR><BR>
-	    </P>
-	    <div>
-			<TABLE border="1" id="board">
-				<TR align='center'>
-					<TH>번호</TH>
-					<TH>카테고리</TH>
-					<TH>제목</TH>
-					<TH>이름</TH>
-					<TH>답변개수</TH>
-					<TH>작성시간</TH>
-					<TH>조회수</TH>
-				</TR>		
-			</TABLE>
-		</div>
-		<BR><BR><TABLE><TR class='pageTable'></TR></TABLE>
-		<BR><BR>
-		<SELECT name='selectSearch'>
-			<OPTION selected value='이름'>이름</OPTION>
-			<OPTION value='제목'>제목</OPTION>
-			<OPTION value='본문'>본문</OPTION>
-		</SELECT>
-		<INPUT type='text' name='search'>
-		<INPUT type='button' value='검색' onClick='JavaScript:goSearch();'> 		
-<!-- 폼 레이어  -->
-<div id="divLangSelect">
-        <span onClick="javascript:document.getElementById('divLangSelect').style.display='none'" style="text-align:right;cursor:pointer;font-size:1.5em" title="닫기">X</span>
-        <div id='popUpContent'>
-
+		<div id="container">
+			<div id="paddingWrapper" class="pane ui-layout-center">
+				<!-- center 영역 -->
+				<div class="pane ui-layout-center">
+					<!-- 게시판 뷰 -->
+	    			<TABLE border="1" id="board" style=width:100%>
+						<TR align='center'>
+							<TH>번호</TH>
+							<TH>카테고리</TH>
+							<TH>제목</TH>
+							<TH>이름</TH>
+							<TH>답변개수</TH>
+							<TH>작성시간</TH>
+							<TH>조회수</TH>
+						</TR>
+						<!-- 리스트 삽입 -->
+					</TABLE>
+					<!-- 페이지 뷰 -->
+					<TABLE>
+						<TR class='pageTable'>
+						<!-- 페이지정보 삽입 -->
+						</TR>
+					</TABLE>
 				</div>
-</div>
-<!-- //폼 레이어  -->
-		<SCRIPT type="text/javaScript">
+				<!-- north 영역 -->
+				<div class="pane ui-layout-north">
+					
+					<!-- <div id='contentControl' style='text-align:center'> -->
+						<TABLE style=width:100%>
+							<TR id='northView'>
+								<TD style=text-align:left>
+									<a href="#"><INPUT type="button" value="새글쓰기" onClick='JavaScript:btnWritePage();'></a>
+								</TD>
+								<TD class=northContent style=text-align:right>
+								</TD>	
+							</TR>
+						</TABLE>
+						
+					<!-- </div> -->
+				</div>
+				<!-- south 영역 -->
+				<div class="pane ui-layout-south">
+					<SELECT name='selectSearch'>
+						<OPTION selected value='이름'>이름</OPTION>
+						<OPTION value='제목'>제목</OPTION>
+						<OPTION value='본문'>본문</OPTION>
+					</SELECT>
+					<INPUT type='text' name='search'>
+					<INPUT type='button' value='검색' onClick='JavaScript:btnSearch();'>
+				</div>
+				<!-- east 영역 -->
+				<div class="pane ui-layout-east">
+					<!-- 본문을 출력할 DIV -->
+					<div id='popUpContent'>
+					</div>
+					<!-- 새글쓰기를 출력할 FORM -->
+					<FORM id='newWrite' name="formWrite">
+						<TABLE border="1" style=width:100%>
+							<TR>
+								<TH>이름</TH>
+								<TD><INPUT type="text" name="writer" size="15" maxlength="15"></TD>
+							</TR>
+							<TR>
+								<TH>비밀번호</TH>
+								<TD><INPUT type="password" name="passwd" size="10" maxlength="10"></TD>
+							</TR>
+							<TR>
+								<TH>카테고리</TH>
+								<TD><SELECT name="category">
+    								<OPTION selected value="일반문의">일반문의</OPTION>
+    								<OPTION value="기술문의">기술문의</OPTION>
+    								<OPTION value="AS문의">AS문의</OPTION>
+    								<OPTION value="기타">기타</OPTION>
+								</SELECT></TD>
+							</TR>
+							<TR>
+								<TH>휴대폰</TH>
+								<TD><INPUT type="tel" name="phone1" size="3" maxlength="3">-<INPUT type="tel" name="phone2" size="4" maxlength="4">-<INPUT type="tel" name="phone3" size="4" maxlength="4"></TD>
+							</TR>
+							<TR>
+								<TH>E-Mail</TH>
+								<TD><INPUT type="email" name="email" size="30"></TD>
+							</TR>
+							<TR>
+								<TH>제목</TH>
+								<TD><INPUT type="text" name="subject" size="30"></TD>
+							</TR>
+							<TR>
+								<TH colspan="2">내용</TH>
+							</TR>
+								
+							<TR>
+								<TD colspan="2"><TEXTAREA rows="10" cols="35" name="content" style=width:99%></TEXTAREA></TD>
+							</TR>
+							<TR>
+								<TD colspan="2" style=text-align:center><INPUT type="button" value="작성완료" onClick="btnSubmitWrite();">
+								<INPUT type="reset" value="다시작성">
+								<INPUT type="button" value="처음으로" onClick="location.href='list.html'"></TD>
+							</TR>
+						</TABLE>
+					</FORM>
+				</div>
+			</div>
+		</div>
+	</BODY>
+	<!-- HTML BODY 끝 -->
+	
+	<!-- 자바스크립트 / jQuery 시작 -->
+	<SCRIPT type="text/javaScript">
+		$(document).ready(function () {
+			$('#container').layout();
+			$('#paddingWrapper').layout();
+			$("#newWrite").hide();
+		});
 			// 전역변수
 			var db = window.openDatabase("myDB", "1.0", "testDB", 1024 * 1024); // 1MB
 			var count;
@@ -59,50 +183,8 @@
 			// 게시판 리스트 출력
 			selectList();
 
-			
-			
-			function goSearch(){
-				var search = document.all.search.value;
-				var type = document.all.selectSearch.value;
-				if(type == "이름"){
-					type = "WRITER";
-				}else if(type == "제목"){
-					type = "SUBJECT";
-				}else if(type == "본문"){
-					type = "CONTENT";
-				}
- 				$('#divLangSelect').css({"display":"none"});
-				$('.list').remove();
-				$('.pageTable').empty();
-				ddd(type, search);
-			}
-			
-		    // 페이지의 게시물을 가져와 테이블에 출력
- 			function ddd(type, search){
-				db.transaction(function(tx){
-					// 셀렉 쿼리
-					tx.executeSql("SELECT COUNT, WRITER, CATEGORY, SUBJECT, WDATE, ANSWER, HIT FROM QNA WHERE " + type + " LIKE '%"+search+"%' ORDER BY WDATE DESC", [],
-						function(tx, results){
-						var length = results.rows.length;
-						var fullTag = "";
-						alert(length);
-						// 테이블에 해당 페이지의 내용을 출력
- 						for(var i = 0; i < length ; i++){
-							var row = results.rows.item(i);
-							var count = row['COUNT'];
-							fullTag +=
-								"<TR align='center' class='list'>" +
-								"<TD>" + row['COUNT'] + "</TD>" +
-								"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
-								"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>";
-						}
-						$('#board').append(fullTag);
-						// 게시글 클릭에 대한 이벤트 설정
-						contentListener();
-				    	}, errorDB
-				    );
-				}, errorDB);
-			}
+
+
 			
 			
 			//db.transaction(qnaSelectListDB, errorDB);
@@ -121,376 +203,25 @@
 	        	console.log("Error processing SQL: "+err.code);
 	    	}
 			
-			////////////////////////////////////////////////////////////
-			// 게시판 리스트 SELECT
-			////////////////////////////////////////////////////////////
-		 	// 게시판 리스트 출력
- 			function selectList(){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT COUNT(*) AS CNT FROM QNA", [],
-						function(tx, results){
-							var row = results.rows.item(0);
-							var cnt = row['CNT'];
-							var perPage = 5; // 페이지당 글수
-							var totPage; // 총 페이지수
-							var start = 0;
-							// 게시믈의 페이지 갯수를 결정
-						    if((cnt % perPage) == 0){
-						    	totPage = parseInt((cnt / perPage));
-						    }else{
-						    	totPage = parseInt((cnt / perPage + 1));
-						    }
-							// 페이지정보를 게시판 아래에 출력 
- 							var fullTag = "";
-							for(var i = 1 ; i <= totPage ; i++){
-								fullTag += "<TD class='pageNum'>["+i+"]</TD>";	
-							}
 
-							$(".pageTable").append(fullTag);
-							$(".pageTable > td").first().css({"color": "red", "font-weight": "bold"});
-							// 초기  첫페이지 리스트 출력
-							qnaSelectListDB(start, perPage);
-							// 페이지 클릭에 대한 이벤트 설정
-							pageListener();
-				    	}, errorDB
-				    );
-				}, errorDB);
-			}
- 			
-		    // 페이지의 게시물을 가져와 테이블에 출력
- 			function qnaSelectListDB(start, perPage){
-				db.transaction(function(tx){
-					// 셀렉 쿼리
-					tx.executeSql("SELECT COUNT, WRITER, CATEGORY, SUBJECT, WDATE, ANSWER, HIT FROM QNA ORDER BY WDATE DESC LIMIT ? OFFSET ?", [perPage, start],
-						function(tx, results){
-						var length = results.rows.length;
-						var fullTag = "";
-						// 테이블에 해당 페이지의 내용을 출력
-						for(var i = 0; i < length ; i++){
-							var row = results.rows.item(i);
-							var count = row['COUNT'];
-							fullTag +=
-								"<TR align='center' class='list'>" +
-								"<TD>" + row['COUNT'] + "</TD>" +
-								"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
-								"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>";
-						}
-						$('#board').append(fullTag);
-						// 게시글 클릭에 대한 이벤트 설정
-						contentListener();
-				    	}, errorDB
-				    );
-				}, errorDB);
-			}
+
  			
 
 			
-			// 게시글을 클릭했을때 조회수를 증가
- 			//function qnaHitUpdateDB(count){
-			//	db.transaction(function(tx){
-			//		tx.executeSql("UPDATE QNA SET HIT = HIT + 1 WHERE COUNT = ?", [count]);
-			//	});
-			//}
-			
-			////////////////////////////////////////////////////////////
-			// 게시판 본문 SELECT
-			////////////////////////////////////////////////////////////
-			// 게시판 본문 쿼리실행
-			function qnaSelectContentDB(count){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT * FROM QNA WHERE COUNT = ?", [count], qnaSelectContentOK, errorDB);
-				}, errorDB);
-			}
-			
-			// 게시판 본문 출력
-			function qnaSelectContentOK(tx, results) {
-				// 기존 정보가 있다면 삭제
-	 			$("#content").remove();
-	 			$("#modify").remove();
-	 			// 리절트
-				var length = results.rows.length;
-				var row = results.rows.item(0);
-				var count = row['COUNT'];
-				// 게시판 본문 구성
-				var fullTag = 
-					"<DIV id='content'>" +
-					"<INPUT type='hidden' name='test3' value="+count+">" +
-					"<INPUT type='button' value='수정하기' id='modify' onClick=JavaScript:pwCheck('modify');>" +
-					"<INPUT type='button' value='삭제하기' id='delete' onClick=JavaScript:pwCheck('delete');>" +
-					"<TABLE border='1'>" +
-					"<TR align='center'>" +
-					"<TH>번호</TH>" +
-					"<TH>카테고리</TH>" +
-					"<TH>제목</TH>" +
-					"<TH>이름</TH>" +
-					"<TH>답변개수</TH>" +
-					"<TH>작성시간</TH>" +
-					"<TH>조회수</TH>" +
-					"</TR>" +
-					"<TR align='center'>" +
-					"<TD>" + row['COUNT'] + "</TD>" +
-					"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
-					"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>" +
-					"<TR align='center'><TD colspan='7'><TABLE border='1' id='comment'>" +
-					"<TR align='center'><TD>핸드폰</TD><TD>" + row['PHONE'] + "</TD><TD>이메일</TD><TD>" + row['EMAIL'] + "</TD></TR>" +
-					"<TR align='center'><TD colspan='4'>제 목</TD></TR>" +
-					"<TR align='center'><TD colspan='4'>" + row['SUBJECT'] + "</TD></TR>" +
-					"<TR align='center'><TD colspan='4'>내 용</TD></TR>" +
-					"<TR align='center'><TD colspan='4'>" + row['CONTENT'] + "</TD></TR>" +
-					"<TR align='center'><TD>이름<BR><INPUT type='text' class='commentWriter' size='15' maxlength='15'>" +
-					"<BR>비밀번호<BR><INPUT type='password' class='commentPasswd' size='10' maxlength='10'></TD>" +
-					"<TD colspan='2'><TEXTAREA rows='5' cols='40' class='commentContent'>리플을 작성하세요.</TEXTAREA></TD>" +
-					"<TD><INPUT type='button' value='작성' onClick='JavaScript:writeComment("+row['COUNT']+");'></TD></TR>"+
-					"</TABLE></TD></TR></TABLE></DIV>";
-				// 실제 태그를 숨겨있던 div에 적용
-				$("#popUpContent").append(fullTag);
-				// 게시글에 맞는 리플 쿼리 호출
-				commentSelectDB(count);
-		    }
-			
-			////////////////////////////////////////////////////////////
-			// 본문의 리플 SELECT
-			////////////////////////////////////////////////////////////
-			// 리플 쿼리 실행
-			function commentSelectDB(count){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT * FROM COMMENT WHERE QNACNT = ? ORDER BY WDATE ASC", [count], commentSelectOK, errorDB);
-				}, errorDB);
-			}
-			
-			// 게시판의 본문 아래에 리플 출력
- 			function commentSelectOK(tx, results) {
-				var length = results.rows.length;		
- 				var fullTag = "";//"<TABLE border='1'>";
-				for(var i = 0; i < length ; i++){
-					var row = results.rows.item(i);
-					fullTag +=
-			 			"<TR align='center'><TD>작성자</TD><TD>" + row['WRITER'] + "</TD><TD>작성시간</TD><TD>" + row['WDATE'] + "</TD></TR>" +
-			 			"<TR align='center'><TD class='commentSubject'>내 용</TD><TD colspan='2' class='commentContentForm'>" + row['CONTENT'] + "</TD>" +
-						"<TD value='dd'><INPUT type='button' value='수정' class='commentModify'><BR><INPUT type='button' value='삭제' class='commentDelete'><INPUT type='hidden' value="+row['COUNT']+"></TD></TR>";	
-				}
-				$("#comment").append(fullTag);
-				$("#comment").append("</TABLE></TD></TR></TABLE>");
-				replyCheck();
-		    } 
-			
-			////////////////////////////////////////////////////////////
-			// 본문의 리플 INSERT
-			////////////////////////////////////////////////////////////
-			// 리플 작성시 인서트시키는 쿼리
-			function commentInsertDB(count, writer, passwd, content){
-				db.transaction(function(tx){
-					tx.executeSql("INSERT INTO COMMENT(QNACNT, WRITER, PASSWD, CONTENT, WDATE) VALUES(?, ?, ?, ?, datetime('now', 'localtime'))", [count, writer, passwd, content]);
-				}, errorDB);
-			}
 
-			////////////////////////////////////////////////////////////
-			// 게시글 삭제 SELECT & DELETE
-			////////////////////////////////////////////////////////////
-			// 게시글 삭제에 대한 쿼리 및 로직
-			function qnaDeleteDB(count, passwd){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT PASSWD FROM QNA WHERE COUNT = ? AND PASSWD = ?", [count, passwd],
-						function(tx, results){
-							var length = results.rows.length;
-							// COUNT, PASSWD 일치
-							if(length == 1){
-								// 삭제는 정말 삭제할지 다시 물음
-								if(confirm('정말 삭제하시겠습니까?')){
-									// 게시글 및 게시글에 해당하는 리플 삭제
-		 	 						qnaDeleteContent(count, passwd);
-		 	 						commentDeleteContent(count);
-		 	 						// 관련 폼을 삭제하고 list를 재출력
-		 	 	 					$('#divLangSelect').css({"display":"none"});
-		 	 	 					$(".list").remove();
-		 	 						db.transaction(qnaSelectListDB, errorDB);
-								}else{
-									alert('삭제가 취소되었습니다.');
-								}
-							// COUNT, PASSWD 불일치
-							}else if(length == 0){
-								// 안내 메시지 출력
-								alert('비밀번호가 맞지 않습니다.');
-							}
-				    	}, errorDB
-				    );
-				}, errorDB);
-			}
 			
-			// 본문글을 삭제했을때 발생하는 쿼리
- 			function qnaDeleteContent(count, passwd){
- 				db.transaction(function(tx){
- 					tx.executeSql("DELETE FROM QNA WHERE COUNT = ? AND PASSWD = ?", [count, passwd]);
- 				}, errorDB);
- 			}
-			
-			// 본문글을 삭제했을때 관련 리플도 모두 삭제하는 쿼리
- 			function commentDeleteContent(count){
- 				db.transaction(function(tx){
- 					tx.executeSql("DELETE FROM COMMENT WHERE QNACNT = ?", [count]);//, [writer, passwd, phone, email, category, subject, content]);
- 				}, errorDB);
- 			}
-			
-			////////////////////////////////////////////////////////////
-			// 게시글 수정 SELECT & UPDATE
-			////////////////////////////////////////////////////////////
-			// 게시글 수정에 대한 쿼리 및 로직
-			function qnaModifyDB(count, passwd){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT PASSWD FROM QNA WHERE COUNT = ? AND PASSWD = ?", [count, passwd],
-						function(tx, results){
-							var length = results.rows.length;
-							// COUNT, PASSWD 일치
-							if(length == 1){
-								// 수정을 위해 본문을 다시 갖고오는 함수
-								qnaModifyContentDB(count, passwd);
-							// COUNT, PASSWD 불일치
-							}else if(length == 0){
-								// 안내 메시지 출력
-								alert('비밀번호가 맞지 않습니다.');		
-							}
-				    	}, errorDB
-				    );
-				}, errorDB);
-			}
 
-			// 게시글 본문을 가져오는 쿼리 실행
-			function qnaModifyContentDB(count, passwd){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT * FROM QNA WHERE COUNT = ? AND PASSWD = ?", [count, passwd], qnaModifyContentOK, errorDB);
-				}, errorDB);
-			}
 			
-			// 게시글 본문을 가져와 수정할 수 있는 폼을 만들고 해당 값을 적절히 배치
-			function qnaModifyContentOK(tx, results) {
-				// 새로운 폼 작성을 위해 이전 폼들을 삭제
-				$("#content").remove();
-				$("#modify").remove();
-				// 리절트
-				var length = results.rows.length;
-				var row = results.rows.item(0);
-				var count = row['COUNT'];
-				// 핸드폰 예외처리
-				var phone1 = null;
-				var phone2 = null;
-				var phone3 = null;
-				if(row['PHONE'].length == 11){
-					phone1 = row['PHONE'].substring(0, 3);
-					phone2 = row['PHONE'].substring(3, 7);
-					phone3 = row['PHONE'].substring(7);
-				}else if(row['PHONE'].length == 10){
-					phone1 = row['PHONE'].substring(0, 3);
-					phone2 = row['PHONE'].substring(3, 6);
-					phone3 = row['PHONE'].substring(6);
-				}else{
-					phone1 = "010";
-					phone2 = "0000";
-					phone3 = "0000";
-				}
-				// 가져온 리절트 셋으로 수정 폼 작성
-				var fullTag = 
-					"<DIV id='modify'>" +
-					"<INPUT type='button' value='수정하기' onClick='JavaScript:modifySubmit();'>" +
-					"<INPUT type='button' value='돌아가기' onClick='JavaScript:qnaSelectContentDB("+count+");'>" +
-					"<TABLE border='1'>" +
-					"<TR><TD>번호</TD><TD>" + row['COUNT'] + "</TD><TD>조회수</TD><TD>" + row['HIT'] + "</TD></TR>" +
-					"<TR><TD>카테고리</TD><TD colspan='3'><SELECT class='contentCategory'>" +
-	    			"<OPTION selected value='일반문의'>일반문의</OPTION>" +
-	    			"<OPTION value='기술문의'>기술문의</OPTION>" +
-	    			"<OPTION value='AS문의'>AS문의</OPTION>" +
-	    			"<OPTION value='기타'>기타</OPTION>" +
-	    			"</SELECT></TD></TR>" +
-					"<TR><TD>작성자</TD><TD><INPUT type='text' class='contentWriter' size='15' maxlength='15' value='" + row['WRITER'] + "'></TD><TD>작성비밀번호</TD><TD><INPUT type='password' class='contentPasswd' size='10' maxlength='10'></TD></TR>" +
-					"<TR><TD>핸드폰</TD><TD><INPUT type='tel' class='contentPhone1' size='3' maxlength='3' value='" + 	phone1  +"'>-<INPUT type='tel' class='contentPhone2' size='4' maxlength='4' value='" + phone2 + "'>-<INPUT type='tel' class='contentPhone3' size='4' maxlength='4' value='" + phone3 + "'></TD><TD>이메일</TD><TD><INPUT type='email' class='contentEmail' size='30' value='" + row['EMAIL'] + "'></TD></TR>" +
-					"<TR><TD colspan='4'>제 목</TD></TR>" +
-					"<TR><TD colspan='4'><INPUT type='text' class='contentSubject' size='30' value='" + row['SUBJECT'] + "'></TD></TR>" +
-					"<TR><TD colspan='4'>내 용</TD></TR>" +
-					"<TR><TD colspan='4'><TEXTAREA rows='10' cols='35' class='contentContent'>" + row['CONTENT'] + "</TEXTAREA></TD></TR></TABLE></DIV>";
-				// 실제 태그를 숨겨있던 div에 적용
-				$("#popUpContent").append(fullTag);
-		    }
-			// 본문을 수정했을때 발생하는 쿼리
- 			function qnaUpdateContentDB(count, writer, passwd, phone, email, category, subject, content){
-				db.transaction(function(tx){
-					tx.executeSql("UPDATE QNA SET WRITER = ?, PASSWD = ?, PHONE = ?, EMAIL = ?, CATEGORY = ?, SUBJECT = ?, CONTENT = ? WHERE COUNT = ?", [writer, passwd, phone, email, category, subject, content, count]);
-				});
-			}
+
+
+
+			
+
 			
 			
-			////////////////////////////////////////////////////////////
-			// 본문 리플 삭제 SELECT & DELETE
-			////////////////////////////////////////////////////////////
-			// 본문 리플에 대한 쿼리 및 로직
- 			function commentDeleteDB(qnacnt, cnt, passwd){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT PASSWD FROM COMMENT WHERE QNACNT = ? AND COUNT = ? AND PASSWD = ?", [qnacnt, cnt, passwd],
-						function(tx, results){
-							var length = results.rows.length;
-							// QNACNT, COUNT, PASSWD 일치
-							if(length == 1){
-								// 삭제는 정말 삭제할지 다시 물음
-								if(confirm('정말 삭제하시겠습니까?')){
-									// 해당 리플 삭제
-		 	 						commentDelete(qnacnt, cnt, passwd);
-		 	 						// 폼을 재출력
-		 	 						qnaSelectContentDB(qnacnt);
-								}else{
-									alert('삭제가 취소되었습니다.');
-								}
-							// QNACNT, COUNT, PASSWD 불일치
-							}else if(length == 0){
-								// 안내 메시지 출력
-								alert('비밀번호가 맞지 않습니다.');
-							}
-				    	}, errorDB
-				    );
-				}, errorDB);
-			}
+
 			
-			// 본문글을 삭제했을때 발생하는 쿼리
- 			function commentDelete(qnacnt, cnt, passwd){
- 				db.transaction(function(tx){
- 					tx.executeSql("DELETE FROM COMMENT WHERE QNACNT = ? AND COUNT = ? AND PASSWD = ?", [qnacnt, cnt, passwd]);
- 				}, errorDB);
- 			}
-			
-			////////////////////////////////////////////////////////////
-			// 리플 수정 SELECT & UPDATE
-			////////////////////////////////////////////////////////////
-			// 리플 수정에 대한 쿼리 및 로직
-			function commentModifyDB(qnacnt, cnt, passwd, curTd){
-				db.transaction(function(tx){
-					tx.executeSql("SELECT PASSWD FROM COMMENT WHERE QNACNT = ? AND COUNT = ? AND PASSWD = ?", [qnacnt, cnt, passwd],
-						function(tx, results){
-							var length = results.rows.length;
-							// QNACNT, COUNT, PASSWD 일치
-							if(length == 1){
-								// 테이블 수정을 위해 tr의 위치를 저장
-								var curTr = curTd.parent();
-								// 본문 수정을 위해 기존값을 가져온다
-								var textAreaText = curTr.children('td.commentContentForm').text();
-								// 테이블의 해당 지점을 비우고 아래 수정 폼으로 채운다
-								curTr.children('td.commentSubject').empty().append("<H3>수정모드</H3>");
-								curTr.children('td.commentContentForm').empty().append("<TEXTAREA rows='5' cols='40'>"+textAreaText+"</TEXTAREA>");
-								curTd.empty().append("<INPUT type='button' value='수정완료' class='commentModifyOK'><INPUT type='hidden' value="+cnt+"><INPUT type='button' value='수정취소' class='commentModifyCancel'>");
-								// 각 버튼에 이벤트를 등록
-								replyModifyAction();
-							// QNACNT, COUNT, PASSWD 불일치
-							}else if(length == 0){
-								// 안내 메시지 출력
-								alert('비밀번호가 맞지 않습니다.');		
-							}
-				    	}, errorDB
-				    );
-				}, errorDB);
-			}
-			
-			// 리플을 수정했을때 발생하는 쿼리
- 			function commentUpdateDB(qnacnt, cnt, content){
-				db.transaction(function(tx){
-					tx.executeSql("UPDATE COMMENT SET CONTENT = ? WHERE QNACNT = ? AND COUNT = ?", [content, qnacnt, cnt]);
-				});
-			}
+
 			
 
 			
@@ -500,6 +231,40 @@
 			////////////////////////////////////////////////////////////
 			// 여기부터 일반 함수
 			////////////////////////////////////////////////////////////
+			// [새글쓰기]로 이로
+			function btnWritePage(){
+				$("#popUpContent").empty();
+				$('.northContent').empty();
+				$("#newWrite").show();
+			}
+
+			// 새글쓰기 폼에서 [작성완료]버튼 클릭시
+ 			function btnSubmitWrite(){
+				var form = document.formWrite;
+				var writer = form.writer.value;
+ 				var passwd = form.passwd.value;
+				var category = form.category.value;
+				var phone = form.phone1.value + form.phone2.value + form.phone3.value;
+				var email = form.email.value;
+				var subject = form.subject.value;
+				var content = form.content.value;
+				form.writer.value = "";
+				form.passwd.value = "";
+				form.category.value = "";
+				form.phone1.value = "";
+				form.phone2.value = "";
+				form.phone3.value = "";
+				form.email.value = "";
+				form.subject.value = "";
+				form.content.value = "";
+				insertData(writer, passwd, phone, email, category, subject, content);
+				// 글쓰기창 제거
+				$("#newWrite").hide();
+				// 리스트 새로고침
+				$(".list").remove();
+				selectList();
+ 			}
+			
 			// 페이지 클릭에 대한 이벤트 처리
  			function pageListener(){
  	 			$(".pageNum").click(function(e) {
@@ -513,13 +278,32 @@
 					$(this).parent().children().css({"color": "black", "font-weight": "normal"});
 					$(this).css({"color": "red", "font-weight": "bold"});
 					// 리스트와 본문이 있다면 제거
-	 				$('#divLangSelect').css({"display":"none"});
+	 				$('#popUpContent').empty();
+					$('.northContent').empty();
 					$('.list').remove();
 					// 해당 페이지의 테이블을 가져오는 쿼리
 					qnaSelectListDB(start, perPage);
 	 			});
  			}
- 			// 리스트 클릭에 이벤트 처리
+			
+			// [검색]버튼 클릭시
+			function btnSearch(){
+				var search = document.all.search.value;
+				var type = document.all.selectSearch.value;
+				if(type == "이름"){
+					type = "WRITER";
+				}else if(type == "제목"){
+					type = "SUBJECT";
+				}else if(type == "본문"){
+					type = "CONTENT";
+				}
+ 				$('#popUpContent').empty();
+				$('.list').remove();
+				$('.pageTable').empty();
+				selectSearchDB(type, search);
+			}
+			
+ 			// 리스트 클릭에 대한 이벤트 처리
  			function contentListener(){
  	 			$(".list").click(function(e) {
  	 				count = parseInt($(this).text());
@@ -530,12 +314,17 @@
  	 				//qnaHitUpdateDB(count);
  	 				// 선택한 글의 본문을 출력
  	 				qnaSelectContentDB(count);
-	 				$('#divLangSelect').css({
+/* 	 				$('#popUpContent').css({
 	 					"top": 0,
 	 					"left": 0,
 						"position": "absolute",
 						"background-color":"#f0f8ff"
-	 				}).show();/* css({
+	 				}).show(); */
+	 				//$('#popUpContent').show();
+	 				$('#popUpContent').show();
+	 				//$('#popUpContent').fadeIn();
+	 				//$('#popUpContent').fadeIn();
+	 				/* css({
  	 				     "top": top
  	 				     ,"left": left
  	 				     ,"right":650
@@ -544,20 +333,9 @@
  	 				 }).show(); */
 	 			});
  			}
-	 			
- 			// 리플작성
-	 		function writeComment(count){
-	 			var writer = $(".commentWriter").val();
-		    	var passwd = $(".commentPasswd").val();
-		    	var content = $(".commentContent").val();
-		    	// 인서트 쿼리 실행
-	 			commentInsertDB(count, writer, passwd, content);
-		    	// 본문 새로고침
- 				qnaSelectContentDB(count);
-	 		}
 	 		
- 			// 본문의 수정,삭제시 비밀번호 체크
-	 		function pwCheck(option){
+ 			// 본문의 [수정], [삭제]시 비밀번호 체크
+	 		function btnContentCheck(option){
 	 			var passwd = prompt("비밀번호를 입력하세요.");
 	 			// 옵션에 따라 다른 함수를 호출
  	 			if(option == 'delete'){
@@ -567,8 +345,8 @@
 	 			}
 	 		}
 	 		
- 			// 본문의 수정완료 버튼 클릭시 발생
-	 		function modifySubmit(){
+ 			// 본문의 [수정완료] 버튼 클릭시 - 본문 UPDATE
+	 		function btnModifySubmit(){
  	 			var writer = $(".contentWriter").val();
 	 			var passwd = $(".contentPasswd").val();
 	 			var phone = $(".contentPhone1").val() + $(".contentPhone2").val() + $(".contentPhone3").val();
@@ -582,9 +360,22 @@
 	 			qnaSelectContentDB(count);
 	 		}
  			
-			// 리플의 수정, 삭제를 클릭했을때
-			function replyCheck(){
+ 			
+ 			// 리플의 [작성] 버튼 클릭시
+	 		function btnWriteComment(count){
+	 			var writer = $(".commentWriter").val();
+		    	var passwd = $(".commentPasswd").val();
+		    	var content = $(".commentContent").val();
+		    	// 인서트 쿼리 실행
+	 			commentInsertDB(count, writer, passwd, content);
+		    	// 본문 새로고침
+ 				qnaSelectContentDB(count);
+	 		}
+ 			
+			// 리플의 [수정], [삭제]에 대한 이벤트 처리
+			function replyCheckListener(){
 	 	 		$(".commentModify").click(function(e) {
+	 	 			$(this).attr("disabled", "true");
 	 	 			// 게시글의 카운트
 	 	 			var qnacnt = count;
 	 	 			// 리플의 카운트
@@ -596,6 +387,7 @@
 	 	 			commentModifyDB(qnacnt, cnt, passwd, curTd);
 		 		});
 		 	 	$(".commentDelete").click(function(e) {
+		 	 		$(this).attr("disabled", "true");
 	 	 			var qnacnt = count;
 	 	 			var cnt = $(this).next().val();
 	 		 		var passwd = prompt("비밀번호를 입력하세요.");
@@ -604,15 +396,17 @@
 		 		});
 			 }
 			 
-			// 리플의 수정모드에서 수정완료, 수정취소를 클릭했을때
-			function replyModifyAction(){
+			// 리플의 수정모드에서 [수정완료], [수정취소]에 대한 이벤트 처리
+			function replyModifyListener(){
 		 	 	$(".commentModifyCancel").click(function(e) {
+		 	 		$(this).attr("disabled", "true");
 		 	 		var qnacnt = count;
 		 	 		// 취소시 안내메시지 출력 후 동일 게시글 새로고침
 		 			alert('리플 수정이 취소되었습니다.');
 		 			qnaSelectContentDB(qnacnt);
 		 		});
 		 	 	$(".commentModifyOK").click(function(e) {
+		 	 		$(this).attr("disabled", "true");
 		 	 		var qnacnt = count;
 		 	 		var cnt = $(this).next().val();
 					var content = $(this).parent().parent().children('td.commentContentForm').children('textarea').val();
@@ -644,7 +438,12 @@
 			
 			
 			
-			
+						// 게시글을 클릭했을때 조회수를 증가
+ 			//function qnaHitUpdateDB(count){
+			//	db.transaction(function(tx){
+			//		tx.executeSql("UPDATE QNA SET HIT = HIT + 1 WHERE COUNT = ?", [count]);
+			//	});
+			//}
 			
 			
 			
@@ -679,14 +478,14 @@
 		 
  	 				 
  	 				//var $layerPopupObj = $('#popup');
- 	 				//var left = ( $(window).scrollLeft() + ($(window).width() - $("divLangSelect").width()) / 2 );
- 	 				//var top = ( $(window).scrollTop() + ($(window).height() - $("divLangSelect").height()) / 2 );
+ 	 				//var left = ( $(window).scrollLeft() + ($(window).width() - $("popUpContent").width()) / 2 );
+ 	 				//var top = ( $(window).scrollTop() + ($(window).height() - $("popUpContent").height()) / 2 );
  	 				//$layerPopupObj.css({'left':left,'top':top, 'position':'absolute'});
  	 				//var left = 650;
  	 				//var top = 100;
 	 
  	 				 
-/*  	 				 $('#divLangSelect').css({
+/*  	 				 $('#popUpContent').css({
  	 				     "top": top
  	 				     ,"left": left
  	 				     ,"right":650
@@ -728,5 +527,4 @@
  			
  			
 		</SCRIPT>
-	</BODY>
 </HTML>

@@ -1,0 +1,5 @@
+table {width:98%; margin:0 auto; text-align:center; border-collapse:collapse}
+th {background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff}
+th {text-align:center; width:12%;background:#BFBFBF}
+tr:hover {background:#F3F5BB}
+tr:hover th {background:#F2F684; color:#1BA6B2}
