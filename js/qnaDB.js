@@ -49,7 +49,7 @@ function insertData(writer, passwd, phone, email, category, subject, content){
  			function qnaSelectListDB(start, perPage){
 				db.transaction(function(tx){
 					// 셀렉 쿼리
-					tx.executeSql("SELECT COUNT, WRITER, CATEGORY, SUBJECT, WDATE, ANSWER, HIT FROM QNA ORDER BY WDATE DESC LIMIT ? OFFSET ?", [perPage, start],
+					tx.executeSql("SELECT COUNT, WRITER, CATEGORY, SUBJECT, WDATE, ANSWER, HIT FROM QNA ORDER BY COUNT DESC LIMIT ? OFFSET ?", [perPage, start],
 						function(tx, results){
 						var length = results.rows.length;
 						var fullTag = "";
@@ -78,7 +78,7 @@ function insertData(writer, passwd, phone, email, category, subject, content){
  			function selectSearchDB(type, search){
 				db.transaction(function(tx){
 					// 셀렉 쿼리
-					tx.executeSql("SELECT COUNT, WRITER, CATEGORY, SUBJECT, WDATE, ANSWER, HIT FROM QNA WHERE " + type + " LIKE '%"+search+"%' ORDER BY WDATE DESC", [],
+					tx.executeSql("SELECT COUNT, WRITER, CATEGORY, SUBJECT, ANSWER, WDATE, ANSWER, HIT FROM QNA WHERE " + type + " LIKE '%"+search+"%' ORDER BY COUNT DESC", [],
 						function(tx, results){
 						var length = results.rows.length;
 						var fullTag = "";
@@ -119,6 +119,9 @@ function insertData(writer, passwd, phone, email, category, subject, content){
 				var length = results.rows.length;
 				var row = results.rows.item(0);
 				var count = row['COUNT'];
+				
+				var change = row['CONTENT'];
+				change = change.replace("\r\n", "<BR>");
 				// 게시판 본문 구성
 				$(".northContent").empty();
 				var fullTag =
@@ -142,23 +145,22 @@ function insertData(writer, passwd, phone, email, category, subject, content){
 					"<TD>" + row['COUNT'] + "</TD>" +
 					"<TD>" + row['CATEGORY'] + "</TD><TD>" + row['SUBJECT'] + "</TD><TD>" + row['WRITER'] + "</TD>" +
 					"<TD>" + row['ANSWER'] + "</TD><TD>" + row['WDATE'] + "</TD><TD>" + row['HIT'] + "</TD></TR>" +
-					"<TR align='center'><TD colspan='7'><TABLE border='1' id='comment' style=width:100%>" +
-					"<TR align='center'><TD>핸드폰</TD><TD>" + row['PHONE'] + "</TD><TD>이메일</TD><TD>" + row['EMAIL'] + "</TD></TR>" +
-					"<TR align='center'><TD colspan='4'>제 목</TD></TR>" +
+					"<TR align='center'><TD colspan='7'><TABLE border='1' id='comment' style=width:98%>" +
+					"<TR align='center'><TH>핸드폰</TH><TD>" + row['PHONE'] + "</TD><TH>이메일</TH><TD>" + row['EMAIL'] + "</TD></TR>" +
+					"<TR align='center'><TH colspan='4'>제 목</TH></TR>" +
 					"<TR align='center'><TD colspan='4'>" + row['SUBJECT'] + "</TD></TR>" +
-					"<TR align='center'><TD colspan='4'>내 용</TD></TR>" +
-					"<TR align='center'><TD colspan='4'>" + row['CONTENT'] + "</TD></TR>" +
-					"<TR align='center'><TD>이름<BR><INPUT type='text' class='commentWriter' size='15' maxlength='15'>" +
-					"<BR>비밀번호<BR><INPUT type='password' class='commentPasswd' size='10' maxlength='10'></TD>" +
+					"<TR align='center'><TH colspan='4'>내 용</TH></TR>" +
+					"<TR align='center'><TD colspan='4'><PRE>" + row['CONTENT'] + "</PRE></TD></TR>" +
+					"<TR align='center'><TD>이름<BR><INPUT type='text' class='commentWriter' size='15' maxlength='15' style=width:80%>" +
+					"<BR>비밀번호<BR><INPUT type='password' class='commentPasswd' size='10' maxlength='10' style=width:80%></TD>" +
 					"<TD colspan='2'><TEXTAREA rows='5' cols='40' class='commentContent'>리플을 작성하세요.</TEXTAREA></TD>" +
 					"<TD><INPUT type='button' value='작성' onClick='JavaScript:btnWriteComment("+row['COUNT']+");this.disabled=true'></TD></TR>"+
 					"</TABLE></TD></TR></TABLE></DIV>";
 				// 실제 태그를 숨겨있던 div에 적용
 				$("#popUpContent").append(fullTag);
+				
 				// 리플작성을 위해 textArea 클릭시 내용을 비워줌
- 	 			$(".commentContent").click(function(e) {
- 	 				$(this).text("");
-	 			});
+				replyListener();
 	 			
 				// 게시글에 맞는 리플 쿼리 호출
 				commentSelectDB(count);
@@ -279,20 +281,20 @@ function insertData(writer, passwd, phone, email, category, subject, content){
 					$(".northContent").append(fullTag);
 				fullTag = 
 					"<DIV id='modify'>" +
-					"<TABLE border='1'>" +
-					"<TR><TD>번호</TD><TD>" + row['COUNT'] + "</TD><TD>조회수</TD><TD>" + row['HIT'] + "</TD></TR>" +
-					"<TR><TD>카테고리</TD><TD colspan='3'><SELECT class='contentCategory'>" +
+					"<TABLE border='1' style=width:98%; margin:0 auto; text-align:center; border-collapse:collapse>" +
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD>번호</TD><TD>" + row['COUNT'] + "</TD><TD>조회수</TD><TD>" + row['HIT'] + "</TD></TR>" +
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD>카테고리</TD><TD colspan='3'><SELECT class='contentCategory'>" +
 	    			"<OPTION selected value='일반문의'>일반문의</OPTION>" +
 	    			"<OPTION value='기술문의'>기술문의</OPTION>" +
 	    			"<OPTION value='AS문의'>AS문의</OPTION>" +
 	    			"<OPTION value='기타'>기타</OPTION>" +
 	    			"</SELECT></TD></TR>" +
-					"<TR><TD>작성자</TD><TD><INPUT type='text' class='contentWriter' size='15' maxlength='15' value='" + row['WRITER'] + "'></TD><TD>작성비밀번호</TD><TD><INPUT type='password' class='contentPasswd' size='10' maxlength='10'></TD></TR>" +
-					"<TR><TD>핸드폰</TD><TD><INPUT type='tel' class='contentPhone1' size='3' maxlength='3' value='" + 	phone1  +"'>-<INPUT type='tel' class='contentPhone2' size='4' maxlength='4' value='" + phone2 + "'>-<INPUT type='tel' class='contentPhone3' size='4' maxlength='4' value='" + phone3 + "'></TD><TD>이메일</TD><TD><INPUT type='email' class='contentEmail' size='30' value='" + row['EMAIL'] + "'></TD></TR>" +
-					"<TR><TD colspan='4'>제 목</TD></TR>" +
-					"<TR><TD colspan='4'><INPUT type='text' class='contentSubject' size='30' value='" + row['SUBJECT'] + "'></TD></TR>" +
-					"<TR><TD colspan='4'>내 용</TD></TR>" +
-					"<TR><TD colspan='4'><TEXTAREA rows='10' cols='35' class='contentContent'>" + row['CONTENT'] + "</TEXTAREA></TD></TR></TABLE></DIV>";
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD>작성자</TD><TD><INPUT type='text' class='contentWriter' size='15' maxlength='15' value='" + row['WRITER'] + "' style=width:98%></TD><TD>작성비밀번호</TD><TD><INPUT type='password' class='contentPasswd' size='10' maxlength='10' style=width:98%></TD></TR>" +
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD>핸드폰</TD><TD><INPUT type='tel' class='contentPhone1' size='3' maxlength='3' value='" + 	phone1  +"' style=width:28%>-<INPUT type='tel' class='contentPhone2' size='4' maxlength='4' value='" + phone2 + "' style=width:28%>-<INPUT type='tel' class='contentPhone3' size='4' maxlength='4' value='" + phone3 + "' style=width:28%></TD><TD>이메일</TD><TD><INPUT type='email' class='contentEmail' size='30' value='" + row['EMAIL'] + "' style=width:98%></TD></TR>" +
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD colspan='4'>제 목</TD></TR>" +
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD colspan='4'><INPUT type='text' class='contentSubject' size='30' value='" + row['SUBJECT'] + "' style=width:98%></TD></TR>" +
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD colspan='4'>내 용</TD></TR>" +
+					"<TR style=background:#BFBFBF; color:#fff; text-align:center; border-right:1px solid #fff><TD colspan='4'><TEXTAREA rows='10' cols='35' class='contentContent' style=width:98%>" + row['CONTENT'] + "</TEXTAREA></TD></TR></TABLE></DIV>";
 				// 실제 태그를 숨겨있던 div에 적용
 				$("#popUpContent").append(fullTag);
 		    }
@@ -300,5 +302,12 @@ function insertData(writer, passwd, phone, email, category, subject, content){
  			function qnaUpdateContentDB(count, writer, passwd, phone, email, category, subject, content){
 				db.transaction(function(tx){
 					tx.executeSql("UPDATE QNA SET WRITER = ?, PASSWD = ?, PHONE = ?, EMAIL = ?, CATEGORY = ?, SUBJECT = ?, CONTENT = ? WHERE COUNT = ?", [writer, passwd, phone, email, category, subject, content, count]);
+				});
+			}
+ 			
+ 			// 게시글을 클릭했을때 발생하는 쿼리 - 조회수증가
+ 			function qnaHitUpdateDB(count){
+				db.transaction(function(tx){
+					tx.executeSql("UPDATE QNA SET HIT = HIT + 1 WHERE COUNT = ?", [count]);
 				});
 			}

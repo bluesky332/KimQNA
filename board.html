@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+
+<HTML>
+	<HEAD>
+		<!-- Set Head -->
+		<TITLE>KIM Q&A BOARD - LIST</TITLE>
+ 		<LINK rel="stylesheet" type="text/css" href="css/table.css">
+ 		<link type="text/css" rel="stylesheet" href="ui/layout-default-latest.css" />
+		<SCRIPT type="text/javascript" src="js/jquery-1.9.1.min.js"></SCRIPT>
+		<SCRIPT type="text/javascript" src="ui/jquery-ui-1.10.1.custom.js"></SCRIPT>
+		<SCRIPT type="text/javascript" src="ui/jquery.layout-latest.js"></SCRIPT>
+		<SCRIPT type="text/javascript" src="js/control.js"></SCRIPT>
+		<SCRIPT type="text/javascript" src="js/qnaDB.js"></SCRIPT>
+		<SCRIPT type="text/javascript" src="js/commentDB.js"></SCRIPT>
+		
+		<STYLE type="text/css">
+			html, body {
+				background:	#666;
+				width:		100%;
+				height:		100%;					
+				padding:	0;
+				margin:		0;
+				overflow:	auto;
+			}
+			#container {
+				background:	777;
+				padding: 3%;
+				/* HEIGHT */
+				height:		85%;					
+				/* WIDTH */
+				width:		80%;
+				margin:		0 auto;
+			}
+
+			#paddingWrapper {
+				background:	#999;
+				padding:	20px 10px;
+				border:		4px solid #BBB;
+			}
+			.pane {
+				display:	none;
+			}
+		</STYLE>
+	</HEAD>	
+	
+	<!-- HTML 태그 바디 시작 -->
+	<BODY>
+		<DIV id="container">
+			<DIV id="paddingWrapper" class="pane ui-layout-center">
+				<!-- center 영역 -->
+				<DIV class="pane ui-layout-center">
+					<!-- 게시판 뷰 -->
+	    			<TABLE border="1" id="board" style=width:100%>
+						<TR align='center'>
+							<TH>번호</TH>
+							<TH>카테고리</TH>
+							<TH>제목</TH>
+							<TH>이름</TH>
+							<TH>답변개수</TH>
+							<TH>작성시간</TH>
+							<TH>조회수</TH>
+						</TR>
+						<!-- 리스트 삽입 -->
+					</TABLE>
+					<!-- 페이지 뷰 -->
+					<TABLE style=width:3%>
+						<TR class='pageTable'>
+						<!-- 페이지정보 삽입 -->
+						</TR>
+					</TABLE>
+				</DIV>
+				<!-- north 영역 -->
+				<DIV class="pane ui-layout-north">
+					<TABLE style=width:100%>
+						<TR id='northView'>
+							<TD style=text-align:left>
+								<a href="#"><INPUT type="button" value="새글쓰기" onClick='JavaScript:btnWritePage();'></a>
+							</TD>
+							<TD class=northContent style=text-align:right>
+							</TD>	
+						</TR>
+					</TABLE>
+				</DIV>
+				<!-- south 영역 -->
+				<DIV class="pane ui-layout-south">
+					<SELECT name='selectSearch'>
+						<OPTION selected value='이름'>이름</OPTION>
+						<OPTION value='제목'>제목</OPTION>
+						<OPTION value='본문'>본문</OPTION>
+					</SELECT>
+					<INPUT type='text' name='search'>
+					<INPUT type='button' value='검색' onClick='JavaScript:btnSearch();'>
+				</DIV>
+				<!-- east 영역 -->
+				<DIV class="pane ui-layout-east">
+					<!-- 본문을 출력할 DIV -->
+					<DIV id='popUpContent'>
+					</DIV>
+					<!-- 새글쓰기를 출력할 FORM -->
+					<FORM id='newWrite' name="formWrite">
+						<TABLE id='newWriteForm' border="1" style=width:100%>
+							<TR>
+								<TH style=width:25%>이름</TH>
+								<TD><INPUT type="text" name="writer" size="15" maxlength="15"></TD>
+							</TR>
+							<TR>
+								<TH>비밀번호</TH>
+								<TD><INPUT type="password" name="passwd" size="10" maxlength="10"></TD>
+							</TR>
+							<TR>
+								<TH>카테고리</TH>
+								<TD><SELECT name="category">
+    								<OPTION selected value="일반문의">일반문의</OPTION>
+    								<OPTION value="기술문의">기술문의</OPTION>
+    								<OPTION value="AS문의">AS문의</OPTION>
+    								<OPTION value="기타">기타</OPTION>
+								</SELECT></TD>
+							</TR>
+							<TR>
+								<TH>휴대폰</TH>
+								<TD><INPUT type="tel" name="phone1" size="3" maxlength="3">-<INPUT type="tel" name="phone2" size="4" maxlength="4">-<INPUT type="tel" name="phone3" size="4" maxlength="4"></TD>
+							</TR>
+							<TR>
+								<TH>E-Mail</TH>
+								<TD><INPUT type="email" name="email" size="30"></TD>
+							</TR>
+							<TR>
+								<TH>제목</TH>
+								<TD><INPUT type="text" name="subject" size="30"></TD>
+							</TR>
+							<TR>
+								<TH colspan="2">내용</TH>
+							</TR>
+								
+							<TR>
+								<TD colspan="2"><TEXTAREA rows="10" cols="35" name="content" style=width:99%></TEXTAREA></TD>
+							</TR>
+							<TR>
+								<TD colspan="2" style=text-align:center><INPUT type="button" value="작성완료" onClick="btnSubmitWrite();">
+								<INPUT type="reset" value="다시작성">
+								<INPUT type="button" value="처음으로" onClick="location.href='board.html'"></TD>
+							</TR>
+						</TABLE>
+					</FORM>
+				</DIV>
+			</DIV>
+		</DIV>
+	</BODY>
+	<!-- HTML BODY 끝 -->
+	
+	<!-- 자바스크립트 / jQuery 시작 -->
+	<SCRIPT type="text/javaScript">
+		$(document).ready(function () {
+			$('#container').layout();
+			$('#paddingWrapper').layout();
+			$("#newWrite").hide();
+		});
+		
+		var db = window.openDatabase("myDB", "1.0", "testDB", 1024 * 1024); // 1MB
+		var count;
+			
+		// DB 초기설정
+		db.transaction(initDB, errorDB);
+			
+		// 게시판 리스트 출력
+		selectList();
+
+		////////////////////////////////////////////////////////////
+		// 끝
+		////////////////////////////////////////////////////////////
+ 			
+	</SCRIPT>
+</HTML>

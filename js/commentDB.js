@@ -4,7 +4,7 @@
 			// 리플 쿼리 실행
 			function commentSelectDB(count){
 				db.transaction(function(tx){
-					tx.executeSql("SELECT * FROM COMMENT WHERE QNACNT = ? ORDER BY WDATE ASC", [count], commentSelectOK, errorDB);
+					tx.executeSql("SELECT * FROM COMMENT WHERE QNACNT = ? ORDER BY COUNT ASC", [count], commentSelectOK, errorDB);
 				}, errorDB);
 			}
 			
@@ -16,7 +16,7 @@
 					var row = results.rows.item(i);
 					fullTag +=
 			 			"<TR align='center'><TD>작성자</TD><TD>" + row['WRITER'] + "</TD><TD>작성시간</TD><TD>" + row['WDATE'] + "</TD></TR>" +
-			 			"<TR align='center'><TD class='commentSubject'>내 용</TD><TD colspan='2' class='commentContentForm'>" + row['CONTENT'] + "</TD>" +
+			 			"<TR align='center'><TD class='commentSubject'>내 용</TD><TD colspan='2' class='commentContentForm'><PRE>" + row['CONTENT'] + "</PRE></TD>" +
 						"<TD value='dd'><INPUT type='button' value='수정' class='commentModify'><BR><INPUT type='button' value='삭제' class='commentDelete'><INPUT type='hidden' value="+row['COUNT']+"></TD></TR>";	
 				}
 				$("#comment").append(fullTag);
@@ -33,7 +33,11 @@
 					tx.executeSql("INSERT INTO COMMENT(QNACNT, WRITER, PASSWD, CONTENT, WDATE) VALUES(?, ?, ?, ?, datetime('now', 'localtime'))", [count, writer, passwd, content]);
 				}, errorDB);
 			}
-			
+			function qnaAnsUpdateDB(option, count){
+				db.transaction(function(tx){
+					tx.executeSql("UPDATE QNA SET ANSWER = ANSWER " + option + " 1 WHERE COUNT = ?", [count]);
+				}, errorDB);
+			}			
 			////////////////////////////////////////////////////////////
 			// 본문 리플 삭제 SELECT & DELETE
 			////////////////////////////////////////////////////////////
@@ -49,6 +53,8 @@
 								if(confirm('정말 삭제하시겠습니까?')){
 									// 해당 리플 삭제
 		 	 						commentDelete(qnacnt, cnt, passwd);
+		 	 						// ANSWER 업데이트
+		 	 						qnaAnsUpdateDB("-", qnacnt);
 		 	 						// 폼을 재출력
 		 	 						qnaSelectContentDB(qnacnt);
 								}else{
